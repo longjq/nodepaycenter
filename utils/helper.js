@@ -1,8 +1,9 @@
 const crypto = require('crypto');
 
 const helper = {
-  signVals:[
+  createOrderVals:[
     'memberid',
+    'userid',
     'client_ip',
     'amount',
     'orderid',
@@ -10,8 +11,27 @@ const helper = {
     'notifyurl',
     'paytype',
     'sign',
+    'shoptype',
     'remark'
   ],
+  sendPayementVals:[
+    'plat_order_id',
+    'incr_id',
+    'memberid',
+    'uxtime',
+    'name',
+    'is_vip',
+    'sign'
+  ],
+  encodeData(data, appKey){
+    let tmps = []
+    for (const key in data) {
+      tmps.push(key + '=' + data[key]);  
+    }
+    tmps['key'] = this.sign(data, appKey)
+
+    return tmps.join('&')
+  },
   postVals(data, vals = []){
     let postData = {}
     for (const val of vals) {
@@ -23,6 +43,12 @@ const helper = {
       postData = data
     }
     return postData
+  },
+  getOrderId(memberid, userid){
+    return ~~(new Date().getTime() / 1000) + this.randomRange(100,999) + memberid + userid
+  },
+  randomRange(min,max){
+    return Math.floor(Math.random() * (max - min) + min);
   },
   sign(data, appKey){
     return this.mkmd5(this._mkQueryString(data, appKey))
@@ -48,6 +74,12 @@ const helper = {
   },
   mkmd5(sourceStr){
     return crypto.createHash('md5').update(sourceStr).digest('hex')
+  },
+  hostUrl(ctx, url){
+    return this.hostDomain(ctx) + url
+  },
+  hostDomain(ctx){
+    return ctx.request.protocol + '://'+ ctx.request.host
   }
 }
 
