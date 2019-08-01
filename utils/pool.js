@@ -26,7 +26,7 @@ const db = {
     },
     async randomPayement(data){
         const sql = `select * from pay_channel_shoptype as cs,pay_channel as c 
-                    where cs.channel_id = c.id 
+                    where cs.channel_type = c.name
                     and c.enabled = 1 
                     and cs.shoptype_code = ?`
         const [rows, fields] = await promisePool.query(sql, data['shoptype'])
@@ -62,10 +62,10 @@ const db = {
     async queryPayement(data){
         console.log('====111111111111111111111=====>',data)
         const sql = `select * from pay_channel_shoptype as cs,pay_channel as c 
-                    where cs.channel_id = c.id
+                    where cs.channel_type = c.name
                     and c.enabled = 1 
-                    and cs.shoptype_code = ?
-                    and cs.name = ?`
+                    and c.name = ?
+                    and cs.shoptype_code = ?`
         const [rows, fields] = await promisePool.query(sql, [data['channel_type'], data['channel_shoptype_code']])
         return rows
     },
