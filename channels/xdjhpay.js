@@ -1,5 +1,8 @@
+const FormData = require('form-data');
+const form = new FormData();
 const got = require('got')
-const helper =require('../utils/helper')
+
+const helper = require('../utils/helper')
 
 const xdjhpay = {
     async send(ctx, payement, order){
@@ -9,7 +12,7 @@ const xdjhpay = {
         comm['fxddh'] = order['plat_order_id']
         comm['fxdesc'] = 'fppay'
         comm['fxfee'] = ~~(order['total_fee'] / 100);
-        comm['fxnotifyurl'] = helper.hostUrl(ctx, '/api/v1/notify/'+order['channel_type'])
+        comm['fxnotifyurl'] = helper.hostUrl(ctx, '/api/v1/notify/'+order['plat_order_id'])
         comm['fxbackurl'] = ''
         comm['fxpay'] = (()=>{
             let map = {
@@ -53,24 +56,36 @@ const xdjhpay = {
             }
         }
     },
-    async notify(ctx){
-
+    async notify(ctx, order){
+        // TBD
     },
     async sendurl(url, data = null, method = 'get'){
-
-        return [true, {'status':1,'data':data}]
+        url = 'http://localhost:4000/index.php'
+        let params = []
+        for (const key in data) {
+            params.push(key+'='+data[key])
+        }
+        params = params.join('&')
+        // console.log(data)
+        // return [true, {'status':1,'data':data,'ss':url + '?' + data.join('&')}]
         try {
             let response = null
             if (method == 'get') {
-                response = await got.get(url + '?' + data.join('&'))
+                response = await got.get(url + '?' + params)
             }else{
+                const form = new FormData();
+                for (const key in data) {
+                    form.append(key, data[key])
+                }
                 response = await got.post(url, {
-                    body:data
+                    body:form
                 })
             }
+            console.log('========>',response)
             return [true, response.body]
         } catch (error) {
-            return [false, error.response.body]
+            console.log(error)
+            return [false, error]
         }
     },
     sign(data, appKey){

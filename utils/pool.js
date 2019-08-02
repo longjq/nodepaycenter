@@ -50,6 +50,7 @@ const db = {
         return [rows, platOrderId]
     },
     async queryOrder(platOrderId){
+        console.log('===========================>',platOrderId)
         const sql = 'select * from pay_order where plat_order_id = ?'
         const [rows, fields] = await promisePool.query(sql, platOrderId)
         return rows
@@ -60,7 +61,6 @@ const db = {
         return rows
     },
     async queryPayement(data){
-        console.log('====111111111111111111111=====>',data)
         const sql = `select * from pay_channel_shoptype as cs,pay_channel as c 
                     where cs.channel_type = c.name
                     and c.enabled = 1 

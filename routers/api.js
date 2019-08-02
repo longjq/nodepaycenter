@@ -7,6 +7,13 @@ const loadDir = require('../utils/loaddir')
 
 const IN_KEY = 'gebilaow'
 
+api.get('/', async(ctx, next) => {
+    ctx.response.status = 200
+    return ctx.response.body = {
+        'msg':'helo1'
+    }
+})
+
 api.get('/api/v1/order', async (ctx, next) => {
     let data = ctx.request.query
     
@@ -165,10 +172,24 @@ api.get('/api/v1/payement', async (ctx, next) => {
     // await next()
 })
 
-api.get('/api/v1/notify/:channel', async (ctx, next) => {
+api.get('/api/v1/notify/:platOrderId', async (ctx, next) => {
+    // let payement = await db.queryVipPayement(orders[0])
+    let platOrderId = ctx.params.platOrderId
+    if (!platOrderId) {
+        return ctx.response.ctx = 'error'
+    }
+
+    let order = await db.queryOrder(ctx.params.platOrderId)
+    if (order.length <= 0) {
+        return ctx.response.body = 'error'
+    }
+    let payModules = loadDir('../channels')
+    return await payModules[order[0].channel_type].notify(ctx, order[0])
+    
+
     console.log(ctx.params);
     ctx.response.status = 200
-    ctx.response.body = ctx.params['channel']
+    ctx.response.body = ctx.params
     await next()
 })
 
