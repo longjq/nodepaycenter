@@ -146,9 +146,7 @@ api.get('/api/v1/payement', async (ctx, next) => {
             'msg': '订单不存在'
         }
     }
-    console.log('data===>',data);
     
-    console.log('订单===》',orders)
     let payements = null
     if (data['is_vip'] === 'true') {
         payements = await db.queryVipPayement(orders[0])
@@ -162,10 +160,8 @@ api.get('/api/v1/payement', async (ctx, next) => {
             'msg': '订单异常'
         }
     }
-    console.log(payements, orders)
     let payModules = loadDir('../channels')
     return await payModules[payements[0].name].send(ctx, payements[0], orders[0])
-    
     
     // ctx.response.status = 200
     // ctx.response.body = 'payement'
@@ -187,7 +183,6 @@ api.get('/api/v1/notify/:platOrderId', async (ctx, next) => {
     return await payModules[order[0].channel_type].notify(ctx, order[0])
     
 
-    console.log(ctx.params);
     ctx.response.status = 200
     ctx.response.body = ctx.params
     await next()
